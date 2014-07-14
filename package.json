@@ -1,0 +1,17 @@
+{
+  "name": "chapter-4-workshop",
+  "version": "0.0.1",
+  "dependencies": {},
+  "devDependencies": {
+    "browserify": "^4.2.0",
+    "glslify": "^1.6.0",
+    "gulp": "^3.8.6",
+    "gulp-streamify": "0.0.5",
+    "vinyl-source-stream": "^0.1.1"
+  },
+   "browserify": {
+    "transform": [
+      "glslify"
+    ]
+  }
+}
