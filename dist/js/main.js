@@ -68,6 +68,10 @@ var GL_UTILS = (function (){
 	'use strict';
 	var utils = {};
 
+	/**
+	 * creates a canvas element and appends it to the body
+	 * @return {HTML Canvas Element}
+	 */
 	utils.getCanvas = function () {
 
 		var canvas = document.createElement('canvas'),
@@ -78,6 +82,7 @@ var GL_UTILS = (function (){
 		return canvas; 
 	};
 
+	
 	utils.createProgram = function (gl, vShader, fShader) {
 		var vertexShader,
 		fragmentShader,
@@ -149,20 +154,29 @@ var GL_UTILS = (function (){
 	};
 
 	utils.initVertexBuffer = function (gl, verts, dimensions, pointerName) {
-		 var vertices,
+
+		//gl.createBuffer() //create a buffer
+		//gl.bindBuffer() //bind the buffer object to a target
+		//gl.bufferData() //write data to the buffer
+		//gl.vertexAttribPointer //assign buffer to an attribute
+		//gl.enableVertexAttribArray //enable assignment
+		
+		var vertices,
 	    buffer,
 	    aPosition;
 
 	    vertices = new Float32Array(verts);
 
 	    buffer = gl.createBuffer();
+
+	    //gl.ARRAY_BUFFER is for vertex data
+  		//gl.ELEMENT_ARRAY_BUFFER is for index values that point to vertex data
 	    gl.bindBuffer(gl.ARRAY_BUFFER, buffer); //bind the buffer object to a target
 	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); //write data to the buffer
 
-	    aPosition = gl.getAttribLocation(gl.program, pointerName);
-	    gl.vertexAttribPointer(aPosition, dimensions, gl.FLOAT, false, 0, 0);
-
-	    gl.enableVertexAttribArray(aPosition);
+	    aPosition = gl.getAttribLocation(gl.program, pointerName); //location of attribute (pointer) by name
+	    gl.vertexAttribPointer(aPosition, dimensions, gl.FLOAT, false, 0, 0); //set the buffer object bound to ARRAY_BUFFER to the attribute
+	    gl.enableVertexAttribArray(aPosition); //enable the previous assignment 
 
 	    //return vertices; 
 	};
@@ -173,6 +187,132 @@ var GL_UTILS = (function (){
 
 module.exports = GL_UTILS; 
 },{}],5:[function(require,module,exports){
+var Matrix4 = function (a1,a2,a3,a4,b1,b2,b3,b4,c1,c2,c3,c4,d1,d2,d3,d4) {
+
+	var a1 = a1 || 1,
+	a2 = a2 || 0,
+	a3 = a3 || 0,
+	a4 = a4 || 0,
+	b1 = b1 || 0,
+	b2 = b2 || 1,
+	b3 = b3 || 0,
+	b4 = b4 || 0,
+	c1 = c1 || 0,
+	c2 = c2 || 0,
+	c3 = c3 || 1,
+	c4 = c4 || 0,
+	d1 = d1 || 0,
+	d2 = d2 || 0,
+	d3 = d3 || 0,
+	d4 = d4 || 1;
+
+		
+	var mat = {
+		matrixArray : new Float32Array([a1,a2,a3,a4,b1,b2,b3,b4,c1,c2,c3,c4,d1,d2,d3,d4])
+	};
+
+	mat.identity = function () {
+		mat.matrixArray = new Float32Array([1,0,0,0,
+											0,1,0,0,
+											0,0,1,0,
+											0,0,0,1]);
+
+		return mat;//.matrixArray;
+	};
+
+
+	mat.multiplyVector = function (v) {
+
+		var m = mat.matrixArray, vector, x, y, z, w;
+
+		x = (m[0] * v[0])  + (m[1] * v[1])  + (m[2] * v[2])  + (m[3]);
+		y = (m[4] * v[0])  + (m[5] * v[1])  + (m[6] * v[2])  + (m[7]);
+		z = (m[8] * v[0])  + (m[9] * v[1])  + (m[10] * v[2]) + (m[11]);
+		w = (m[12] * v[0]) + (m[13] * v[1]) + (m[14] * v[2]) + (m[15]);
+
+		return new Float32Array([x,y,z,w]);
+
+	};
+
+	mat.zRotation = function (theta) {
+		console.log('z rotation');
+		var cos = Math.cos(theta),
+		sin = Math.sin(theta);
+		mat.matrixArray = new Float32Array([cos,-sin,0, 0,
+											sin,cos, 0, 0,
+											  0,  0, 1, 0,
+											  0,  0, 0, 1]);
+
+		return mat;//.matrixArray;
+	};	
+
+	mat.xRotation = function (theta) {
+		var cos = Math.cos(theta),
+		sin = Math.sin(theta);
+		mat.matrixArray = new Float32Array([1,0,0,0,
+											0,1,0,0,
+											0,0,1,0,
+											0,0,0,1]);
+
+		return mat;//.matrixArray;
+	};
+
+
+	mat.yRotation = function (theta) {
+
+		var cos = Math.cos(theta),
+		sin = Math.sin(theta);
+		mat.matrixArray = new Float32Array([1,0,0,0,
+											0,1,0,0,
+											0,0,1,0,
+											0,0,0,1]);
+
+		return mat;//.matrixArray;
+	};
+
+	mat.translation = function (tx,ty,tz) {
+		mat.matrixArray = new Float32Array([1,0,0,0,
+											0,1,0,0,
+											0,0,1,0,
+											tx,ty,tz,1]);
+
+		return mat;//.matrixArray;
+	};
+
+	mat.scale = function (sx,sy,sz) {
+		var sx = sx || 1,
+		sy = sy || sx,
+		sz = sz || sx; 
+
+		mat.matrixArray = new Float32Array([sx,0,0,0,
+											0,sy,0,0,
+											0,0,sz,0,
+											0,0,0,1]);
+
+		return mat; 
+	};
+
+	mat.transpose = function () {
+
+		var m = mat.matrixArray;
+		mat.matrixArray = new Float32Array([m[0],m[4],m[8],m[12],
+											m[1],m[5],m[9],m[13],
+											m[2],m[6],m[10],m[14],
+											m[3],m[7],m[11],m[15]
+											]);
+
+		return mat; 
+		
+	};
+
+
+
+	return mat;
+
+};
+
+module.exports = Matrix4; 
+},{}],6:[function(require,module,exports){
 var RESIZOR = (function () {
 	'use strict';
 	var sizor = {
@@ -255,33 +395,29 @@ var RESIZOR = (function () {
 }());
 
 module.exports = RESIZOR;
-},{}],6:[function(require,module,exports){
-var glslify = require("glslify"), ANIMATOR = require("./ANIMATOR"), RESIZOR = require("./RESIZOR"), UTILS = require("./GL_UTILS"), shaders = require("glslify/simple-adapter.js")("\n#define GLSLIFY 1\n\nattribute vec4 aVertexPosition;\nvoid main() {\n  gl_Position = aVertexPosition;\n  gl_PointSize = 2.0;\n}", "\n#define GLSLIFY 1\n\nprecision mediump float;\nvoid main() {\n  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n}", [], [{"name":"aVertexPosition","type":"vec4"}]);
+},{}],7:[function(require,module,exports){
+var glslify = require("glslify"), ANIMATOR = require("./ANIMATOR"), RESIZOR = require("./RESIZOR"), UTILS = require("./GL_UTILS"), Matrix4 = require("./Matrix4"), shaders = require("glslify/simple-adapter.js")("\n#define GLSLIFY 1\n\nattribute vec4 aVertexPosition;\nuniform vec4 uTranslation;\nuniform mat4 uTransMatrix;\nuniform mat4 uRotation;\nvoid main() {\n  gl_Position = uRotation * uTransMatrix * aVertexPosition;\n}", "\n#define GLSLIFY 1\n\nprecision mediump float;\nvoid main() {\n  gl_FragColor = vec4(1.0, 0.0, 1.0, 1.0);\n}", [{"name":"uTranslation","type":"vec4"},{"name":"uTransMatrix","type":"mat4"},{"name":"uRotation","type":"mat4"}], [{"name":"aVertexPosition","type":"vec4"}]);
 
 (function() {
     "use strict";
-    var canvas = UTILS.getCanvas(), gl;
+    var canvas = UTILS.getCanvas(), verts, gl;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
     gl = UTILS.getContext(canvas);
     gl.program = UTILS.createProgram(gl, shaders.vertex, shaders.fragment);
     gl.useProgram(gl.program);
-
-    function initVertexBuffers() {
-        var vertices, buffer, aPosition;
-        vertices = new Float32Array([0, 0.5, -0.5, -0.5, 0.5, -0.5]);
-        buffer = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
-        aPosition = gl.getAttribLocation(gl.program, "aVertexPosition");
-        gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(aPosition);
-        return vertices;
-    }
-
-    initVertexBuffers();
+    var quad = [-0.5, -0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5];
+    UTILS.initVertexBuffer(gl, quad, 2, "aVertexPosition");
     gl.clearColor(0, 0, 0, 1);
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, 3);
+    var theta = Math.PI / 4;
+    var rotationMatrix = Matrix4().zRotation(theta).transpose();
+    var uRotation = gl.getUniformLocation(gl.program, "uRotation");
+    gl.uniformMatrix4fv(uRotation, false, rotationMatrix.matrixArray);
+    var transMatrix = Matrix4().translation(Math.random() - 0.5, Math.random() - 0.5, 0);
+    var transMatrix = Matrix4().scale(Math.random() - 0.5, Math.random() - 0.5);
+    var uTransMatrix = gl.getUniformLocation(gl.program, "uTransMatrix");
+    gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.matrixArray);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 })();
-},{"./ANIMATOR":3,"./GL_UTILS":4,"./RESIZOR":5,"glslify":1,"glslify/simple-adapter.js":2}]},{},[6])
+},{"./ANIMATOR":3,"./GL_UTILS":4,"./Matrix4":5,"./RESIZOR":6,"glslify":1,"glslify/simple-adapter.js":2}]},{},[7])

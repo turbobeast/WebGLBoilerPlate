@@ -2,6 +2,7 @@ var glslify = require('glslify'),
 ANIMATOR = require('./ANIMATOR'),
 RESIZOR = require('./RESIZOR'),
 UTILS = require('./GL_UTILS'),
+Matrix4 = require('./Matrix4'),
 shaders = glslify({
   vertex : '../shaders/vertex.glsl',
   fragment : '../shaders/fragment.glsl',
@@ -12,57 +13,84 @@ shaders = glslify({
   'use strict';
   
   var canvas = UTILS.getCanvas(),
+  verts,
   gl; //= UTILS.getContext(canvas);
 
- canvas.width = window.innerWidth;
- canvas.height = window.innerHeight; 
+
+  //must size the canvas before grabbing the context 
+  //its crazy but its true! 
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight; 
+
 
   gl = UTILS.getContext(canvas);
   gl.program = UTILS.createProgram(gl, shaders.vertex, shaders.fragment );
-
   gl.useProgram(gl.program);
 
-  function initVertexBuffers () {
-    var vertices,
-    buffer,
-    aPosition;
 
-    vertices = new Float32Array([0.0, 0.5,
-                                    -0.5, -0.5,
-                                    0.5, -0.5]);
 
-    buffer = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, buffer); //bind the buffer object to a target
-    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); //write data to the buffer
 
-    aPosition = gl.getAttribLocation(gl.program, 'aVertexPosition');
-    gl.vertexAttribPointer(aPosition, 2, gl.FLOAT, false, 0, 0);
+  // verts = [0.0, 0.5,
+  //         -0.5, -0.5,
+  //         0.5, -0.5];
 
-    gl.enableVertexAttribArray(aPosition);
-
-    return vertices; 
-  }
-
-  initVertexBuffers();
+  var quad  = [-0.5,-0.5, -0.5, 0.5, 0.5, -0.5, 0.5, 0.5];
+  UTILS.initVertexBuffer(gl, quad, 2, 'aVertexPosition');
 
   gl.clearColor(0.0,0.0,0.0,1);
   gl.clear(gl.COLOR_BUFFER_BIT);
-  gl.drawArrays(gl.TRIANGLES, 0, 3);
 
 
+  // var uTranslation = gl.getUniformLocation(gl.program, 'uTranslation');
+  // gl.uniform4f(uTranslation, Math.random() -0.5, Math.random() -0.5, Math.random() -0.5, 0.0);
 
-  //gl.bindBuffer(gl.ARRAY_BUFFER, vertexBuffer);
+  var theta = Math.PI / 4;
 
-  //gl.ARRAY_BUFFER is for vertex data
-  //gl.ELEMENT_ARRAY_BUFFER is for index values that point to vertex data
+  // var cos = Math.cos(theta);
+  // var sin = Math.sin(theta);
+
+  // var rotationMatrix = new Float32Array([cos,sin,0,0,
+  //                                       -sin, cos, 0,0,
+  //                                       0,0,1,0,
+  //                                       0,0,0,1]);
+
+  var rotationMatrix = Matrix4().zRotation(theta).transpose();
 
 
-  //gl.createBuffer() //create a buffer
-  //gl.bindBuffer() //bind the buffer object to a target
-  //gl.bufferData() //write data to the buffer
-  //gl.vertexAttribPointer //assign buffer to an attribute
-  //gl.enableVertexAttribArray //enable assignment
+  var uRotation = gl.getUniformLocation(gl.program, 'uRotation');
+  gl.uniformMatrix4fv(uRotation, false, rotationMatrix.matrixArray);
 
+
+ var transMatrix = Matrix4().translation(Math.random() -0.5,Math.random() -0.5,0);
+
+ var transMatrix = Matrix4().scale(Math.random() -0.5,Math.random() -0.5);
+
+  var uTransMatrix = gl.getUniformLocation(gl.program, 'uTransMatrix');
+  gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.matrixArray);
+
+
+ // canvas.width = window.innerWidth;
+  //canvas.height = window.innerHeight; 
+  //gl.drawArrays(gl.LINE_LOOP, 0, 4);
+  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+  // ANIMATOR.onFrame(function () {
+  //   console.log('hey');
+  //   return;
+  //   theta += 0.1;
+  //   var cos = Math.cos(theta);
+  //   var sin = Math.sin(theta);
+
+  //   // var rotationMatrix = new Float32Array([cos,sin,0,0,
+  //   //                                       -sin, cos, 0,0,
+  //   //                                       0,0,1,0,
+  //   //                                       0,0,0,1]);
+  //   // });
+  //   // 
+  //   var rotationMatrix = new Matrix4().zRotation(theta);
+
+  //   gl.uniformMatrix4fv(uRotation, false, rotationMatrix);
+  //   gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 
 }());
