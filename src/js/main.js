@@ -29,24 +29,43 @@ shaders = glslify({
 
 
 
-  var quad  = [-0.5,-0.5, 0.0, -0.5, 0.5, 0.0, 0.5, -0.5, 0.0, 0.5, 0.5, 0.0];
-  UTILS.initVertexBuffer(gl, quad, 3, 'aVertexPosition');
+  var quad  = [-0.5,-0.5, 0.0, 1.0,
+               -0.5, 0.5, 0.0, 8.0,
+                0.5, -0.5, 0.0, 3.0,
+                0.5, 0.5, 0.0, 12.0];
+  // UTILS.initVertexBuffer(gl, quad, 3, 'aVertexPosition');
 
-  gl.clearColor(0.3,0.0,0.1,1);
+  // var sizes = [1.0,8.0,3.0,12.0];
+  // UTILS.initVertexBuffer(gl, sizes, 1, 'aPointSize');
+  // 
+  UTILS.initVertexBufferMultipleAttributes(gl, [{
+    name : 'aVertexPosition',
+    dimensions : 3,
+    stride : 4,
+    offset : 0
+  },{
+    name : 'aPointSize',
+    dimensions : 1,
+    stride : 4,
+    offset : 3
+  }], quad);
+
+  gl.clearColor(0.4,0.0,0.05,1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var theta = Math.PI / 4;
   var transMatrix = new Matrix4();
   var uTransMatrix = gl.getUniformLocation(gl.program, 'uTransMatrix');
-  gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
+ // gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
 
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  //gl.drawArrays(gl.POINTS, 0, 4);
 
   ANIMATOR.onFrame(function () {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    transMatrix = transMatrix.rotate(0.6,1,1,0);
+    transMatrix = transMatrix.rotate(0.6,0.1,0.1,1);
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
-    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    //gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    gl.drawArrays(gl.POINTS, 0, 4);
   });
 
 

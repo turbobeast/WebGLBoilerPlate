@@ -87,7 +87,7 @@ var GL_UTILS = (function (){
 		return context; 
 	};
 
-	utils.initVertexBuffer = function (gl, verts, dimensions, pointerName) {
+	utils.initVertexBuffer = function (gl, verts, dimensions, pointerName, stride, offset) {
 
 		//gl.createBuffer() //create a buffer
 		//gl.bindBuffer() //bind the buffer object to a target
@@ -97,7 +97,7 @@ var GL_UTILS = (function (){
 		
 		var vertices,
 	    buffer,
-	    aPosition;
+	    attribute;
 
 	    vertices = new Float32Array(verts);
 
@@ -108,11 +108,47 @@ var GL_UTILS = (function (){
 	    gl.bindBuffer(gl.ARRAY_BUFFER, buffer); //bind the buffer object to a target
 	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); //write data to the buffer
 
-	    aPosition = gl.getAttribLocation(gl.program, pointerName); //location of attribute (pointer) by name
-	    gl.vertexAttribPointer(aPosition, dimensions, gl.FLOAT, false, 0, 0); //set the buffer object bound to ARRAY_BUFFER to the attribute
-	    gl.enableVertexAttribArray(aPosition); //enable the previous assignment 
+	    attribute = gl.getAttribLocation(gl.program, pointerName); //location of attribute (pointer) by name
+	    
 
-	    //return vertices; 
+	    /*
+	    gl.vertexAttribPointer([attribute],
+	    					   [dimensions],
+	    					   [data type],
+	    					   [normalize],
+	    					   [stride], //how many bytes until a new set of vertices starts
+	    					   [offset]); //offset where to count relevant data for this attribute 
+	     */
+	    gl.vertexAttribPointer(attribute, dimensions, gl.FLOAT, false, 0, 0); //set the buffer object bound to ARRAY_BUFFER to the attribute
+	    gl.enableVertexAttribArray(attribute); //enable the previous assignment 
+
+	    
+	};
+
+	utils.initVertexBufferMultipleAttributes = function (gl, attribs, vertData) {
+
+		var FSIZE,
+		vertices,
+	    buffer,
+	    attribInfo,
+	    attribute,
+	    i = 0;
+
+	    vertices = new Float32Array(vertData);
+	    FSIZE = vertices.BYTES_PER_ELEMENT;
+	    buffer = gl.createBuffer();
+
+	    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+	    //connect this buffer data to shader attribute
+	    for(i = 0; i < attribs.length; ++i) {
+
+	    	attribInfo = attribs[i];
+	    	attribute = gl.getAttribLocation(gl.program, attribInfo.name);
+	    	gl.vertexAttribPointer(attribute, attribInfo.dimensions, gl.FLOAT, false, attribInfo.stride * FSIZE, attribInfo.offset * FSIZE);
+	    	gl.enableVertexAttribArray(attribute);
+	    }
 	};
 
 	return utils;
