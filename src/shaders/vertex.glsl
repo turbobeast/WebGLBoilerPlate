@@ -1,13 +1,11 @@
 attribute vec4 aVertexPosition;
-attribute float aPointSize; 
-uniform vec4 uTranslation;
+attribute vec3 aColor;
 uniform mat4 uTransMatrix;
-uniform mat4 uRotation;
-varying float barf;
+varying vec3 vColor;
 void main () {
-	gl_PointSize = aPointSize;
+
 	gl_Position = uTransMatrix * aVertexPosition;// + uTranslation;
 
-  barf = aVertexPosition.y;//cos(aVertexPosition.x);
+	vColor = aColor;
  
 }
