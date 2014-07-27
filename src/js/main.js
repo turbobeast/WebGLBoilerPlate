@@ -62,7 +62,7 @@ shaders = glslify({
 
   ANIMATOR.onFrame(function () {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    transMatrix = transMatrix.rotate(0.6,0.1,0.1,1);
+    transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
     gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     //gl.drawArrays(gl.POINTS, 0, 4);
