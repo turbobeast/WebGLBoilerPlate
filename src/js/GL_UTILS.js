@@ -125,6 +125,55 @@ var GL_UTILS = (function (){
 	    
 	};
 
+	utils.initTexture = function (gl, n, uniformName, srcPath) {
+
+		var texture, u_Sampler, image; 
+
+
+		texture = gl.createTexture();
+
+		if(!texture) {
+			return console.error('failed to create texture');
+
+		}
+
+
+		u_Sampler = gl.getUniformLocation(gl.program, uniformName);
+		image = new Image(); 
+
+		image.onload = function () {
+			utils.loadTexture(gl,n,texture,u_Sampler, image);
+		};
+
+		image.src = srcPath;
+
+	};
+
+	utils.loadTexture = function (gl, n, texture, u_Sampler, image) {
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);//flip y axis
+		gl.activeTexture(gl.TEXTURE0);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
+
+
+		// set the texture parameters
+		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+		// set the texture image
+		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
+
+		//set the texture unit 0 to the sampler
+		gl.uniform1i(u_Sampler, 0);
+	};
+
+	/**
+	 * initializes a vertex buffer, 
+	 * handles case where buffer data contains 
+	 * data for more than one attribute
+	 * @param  {WebGLContext} gl the webgl context object
+	 * @param  {Array} attribs an array of simple objects containing name, dimension, stride and offset keys
+	 * @param  {Array} vertData the array of floats for the buffer data
+	 * @return {null}  
+	 */
 	utils.initVertexBufferMultipleAttributes = function (gl, attribs, vertData) {
 
 		var FSIZE,
