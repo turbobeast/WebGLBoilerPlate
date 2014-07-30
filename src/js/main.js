@@ -29,10 +29,10 @@ shaders = glslify({
 
 
 
-  var quad  = [-0.5,-0.5, 0.0, 0.0, 1.0,
-               -0.5, 0.5, 0.0, 0.0, 0.0, 
+  var quad  = [-0.5,-0.5, 0.0, -0.0, 1.0,
+               -0.5, 0.5, 0.0, -0.0, -0.0, 
                 0.5, -0.5, 0.0, 1.0, 1.0, 
-                0.5, 0.5, 0.0, 1.0, 0.0 ];
+                0.5, 0.5, 0.0, 1.0, -0.0 ];
   // UTILS.initVertexBuffer(gl, quad, 3, 'aVertexPosition');
 
   // var sizes = [1.0,8.0,3.0,12.0];
@@ -51,7 +51,20 @@ shaders = glslify({
   }], quad);
 
 
-  UTILS.initTexture(gl, 4, 'u_Sampler', 'images/pris.png');
+  var numLoaded = 0;
+
+
+  function incLoaded ( ) {
+    ++numLoaded;
+
+    if(numLoaded === 2) {
+      ANIMATOR.start();
+    }
+  }
+
+
+  UTILS.initTexture(gl, 4, 'u_Sampler0', 'images/pris.png', 0, incLoaded);
+  UTILS.initTexture(gl, 4, 'u_Sampler1', 'images/yori.png', 1, incLoaded);
 
   gl.clearColor(0.01,0.1,0.2,1);
   gl.clear(gl.COLOR_BUFFER_BIT);

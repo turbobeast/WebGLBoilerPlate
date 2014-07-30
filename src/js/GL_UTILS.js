@@ -1,6 +1,7 @@
 var GL_UTILS = (function (){
 	'use strict';
-	var utils = {};
+	var utils = {},
+	textureUnits;
 
 	/**
 	 * creates a canvas element and appends it to the body
@@ -42,6 +43,8 @@ var GL_UTILS = (function (){
 
   			return null;
   		}
+
+  		textureUnits = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
 
   		return program; 
 
@@ -125,44 +128,65 @@ var GL_UTILS = (function (){
 	    
 	};
 
-	utils.initTexture = function (gl, n, uniformName, srcPath) {
+	/**
+	 * creates texture using gl context
+	 * @param  {gl} gl          wenGL context
+	 * @param  {n} n           the number of vertices texture is mapped to
+	 * @param  {String} uniformName the name of the Sampler2D uniform in the frag shader
+	 * @param  {String} srcPath     path to the image asset
+	 * @return {null}     
+	 */
+	utils.initTexture = function (gl, n, uniformName, srcPath, textureNum, onload) {
 
 		var texture, u_Sampler, image; 
-
-
 		texture = gl.createTexture();
 
 		if(!texture) {
 			return console.error('failed to create texture');
-
 		}
-
 
 		u_Sampler = gl.getUniformLocation(gl.program, uniformName);
 		image = new Image(); 
 
 		image.onload = function () {
-			utils.loadTexture(gl,n,texture,u_Sampler, image);
+			if(typeof onload === 'function') {
+				onload();
+			}
+			utils.loadTexture(gl,n,texture,u_Sampler, image, textureNum);
 		};
 
 		image.src = srcPath;
 
 	};
 
-	utils.loadTexture = function (gl, n, texture, u_Sampler, image) {
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);//flip y axis
-		gl.activeTexture(gl.TEXTURE0);
-		gl.bindTexture(gl.TEXTURE_2D, texture);
+	/**
+	 * loads the texture into the gl context
+	 * @param  {gl} gl webGL the context
+	 * @param  {Number} n the number of vertices texture is mapped to
+	 * @param  {WegGLTExture} texture  the texture generated from gl.createTexture
+	 * @param  {u_Sampler} u_Sampler the location of sampler2D uniform in fragment shader
+	 * @param  {HTMLImageElement} image  the image element
+	 * @return {null}  
+	 */
+	utils.loadTexture = function (gl, n, texture, u_Sampler, image, texNum) {
 
+		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);//flip y axis
+		gl.activeTexture(textureUnits[texNum]);
+		gl.bindTexture(gl.TEXTURE_2D, texture);
 
 		// set the texture parameters
 		gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+
+		// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+		// gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+		//gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
 
 		// set the texture image
 		gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGB, gl.RGB, gl.UNSIGNED_BYTE, image);
 
 		//set the texture unit 0 to the sampler
-		gl.uniform1i(u_Sampler, 0);
+		gl.uniform1i(u_Sampler, texNum);
 	};
 
 	/**

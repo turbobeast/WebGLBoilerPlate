@@ -19,12 +19,11 @@ var ANIMATOR = (function () {
     	if(typeof funk === 'function') {
     		listeners.push(funk);
     	}
-
-    	if(!started) {
-    		started = true;
-    		looper();
-    	}
  	};
+
+  animObj.start = function () {
+    looper();
+  };
 
 
  	looper = function () {
