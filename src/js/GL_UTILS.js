@@ -138,7 +138,8 @@ var GL_UTILS = (function (){
 	 */
 	utils.initTexture = function (gl, n, uniformName, srcPath, textureNum, onload) {
 
-		var texture, u_Sampler, image; 
+		var texture, u_Sampler, image;
+		
 		texture = gl.createTexture();
 
 		if(!texture) {

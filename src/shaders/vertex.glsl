@@ -1,15 +1,13 @@
 attribute vec4 aVertexPosition;
 attribute vec3 aColor;
 uniform mat4 uTransMatrix;
+uniform mat4 uViewMatrix;
 varying vec3 vColor;
 
-attribute vec2 a_TexCoord;
-varying vec2 v_TexCoord; 
+
 void main () {
 
-	gl_Position = uTransMatrix * aVertexPosition;// + uTranslation;
-
-	v_TexCoord = a_TexCoord;
+	gl_Position = uViewMatrix * uTransMatrix * aVertexPosition;// + uTranslation;
 	vColor = aColor;
  
 }
