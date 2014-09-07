@@ -4,6 +4,7 @@ RESIZOR = require('./RESIZOR'),
 UTILS = require('./GL_UTILS'),
 Matrix4 = require('./CUON_Matrix4'),
 DRAGR = require('./DRAG_ROTATE'),
+KEY_HANDLER = require('./KEY_HANDLER'),
 shaders = glslify({
   vertex : '../shaders/vertex.glsl',
   fragment : '../shaders/fragment.glsl',
@@ -79,6 +80,15 @@ shaders = glslify({
     z : 0.25
   };
 
+  var ortho = {
+    left : -1.0,
+    right : 1.0,
+    bottom : -1.0,
+    top : 1.0,
+    near : -1.0,
+    far : 1.0
+  };
+
 
   var viewMatrix = new Matrix4();
   viewMatrix.setLookAt(eye.x, eye.y, eye.z,
@@ -88,19 +98,39 @@ shaders = glslify({
   var uViewMatrix = gl.getUniformLocation(gl.program, 'uViewMatrix');
   gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
 
+  var projMatrix = new Matrix4();
+  var uProjMatrix = gl.getUniformLocation(gl.program, 'uProjMatrix');
+  gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
+
+  /**
+   * setOrtho (LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
+   */
+  projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+
   dragr.addRotationObject(eye);
   dragr.init();
+
+  KEY_HANDLER.on('up', function () {
+    ortho.far += 0.01;
+  });
+
+  KEY_HANDLER.on('down', function () {
+    ortho.near -= 0.01;
+  });
 
 
   ANIMATOR.onFrame(function () {
     gl.clear(gl.COLOR_BUFFER_BIT);
-    transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
-    console.log(eye);
+  //transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
     viewMatrix.setLookAt(eye.x, eye.y, eye.z,
                           0, 0, 0,
                           0, 1, 0);
+   // gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
+    projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+    gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
     gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
+
     gl.drawArrays(gl.TRIANGLES, 0, 6);
     //gl.drawArrays(gl.POINTS, 0, 4);
   });
