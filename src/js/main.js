@@ -6,8 +6,8 @@ Matrix4 = require('./CUON_Matrix4'),
 DRAGR = require('./DRAG_ROTATE'),
 KEY_HANDLER = require('./KEY_HANDLER'),
 shaders = glslify({
-  vertex : '../shaders/vertex.glsl',
-  fragment : '../shaders/fragment.glsl',
+  vertex : '../shaders/texture.vertex.glsl',
+  fragment : '../shaders/texture.fragment.glsl',
   sourceOnly : true
 });
 
@@ -18,6 +18,9 @@ shaders = glslify({
   verts,
   dragr = DRAGR(),
   ratio = 1,
+  camAccel = 0,
+  camVelocity = 0,
+  camFriction = 0.94,
   gl;
 
 
@@ -35,38 +38,28 @@ shaders = glslify({
 
 
 
-  var quad  = [
-                //first square
-               0.0, 0.5, -0.4, 55/255, 184/255, 132/255,
-               -0.5, -0.5, -0.4, 61/255, 208/255, 184/255, 
-                0.5, -0.5, -0.4, 61/255, 149/255, 208/255,
-              //  0.5, 0.5, -0.4, 61/255, 208/255, 97/255,
-                //second square
-                0.0, 0.5, 0.0, 208/255, 61/255, 142/255,
-                -0.5, -0.5, 0.0, 112/255, 26/255, 95/255, 
-                0.5, -0.5, 0.0, 172/255, 12/255, 74/255
-              //  0.5, 0.5, 0.0, 233/255, 94/255, 228/255
-               ];
 
 
+   var quad  = [-0.5,-0.5, 0.0, 0.0, 1.0,
+               -0.5, 0.5, 0.0, 0.0, 0.0, 
+                0.5, -0.5, 0.0, 1.0, 1.0, 
+                0.5, 0.5, 0.0, 1.0, 0.0 ];
   
        
-  //UTILS.initVertexBuffer(gl, quad, 3, 'aVertexPosition');
 
-  // var sizes = [1.0,8.0,3.0,12.0];
-  // UTILS.initVertexBuffer(gl, sizes, 1, 'aPointSize');
-  // 
   UTILS.initVertexBufferMultipleAttributes(gl, [{
     name : 'aVertexPosition',
     dimensions : 3,
-    stride : 6,
+    stride : 5,
     offset : 0
-   },{
-    name : 'aColor',
-    dimensions : 3,
-    stride : 6,
+  },{
+    name : 'a_TexCoord',
+    dimensions : 2,
+    stride : 5,
     offset : 3
   }], quad);
+
+  UTILS.initTexture(gl, 4, 'u_Sampler', 'images/pris.png', 0, ANIMATOR.start );
 
 
 
@@ -78,9 +71,9 @@ shaders = glslify({
   var uTransMatrix = gl.getUniformLocation(gl.program, 'uTransMatrix');
 
     var eye = {
-    x : 0.20,
-    y : 0.25,
-    z : 0.25
+    x : 0.0,
+    y : 0.0,
+    z : 1.5
   };
 
   var ortho = {
@@ -112,21 +105,37 @@ shaders = glslify({
   //
   projMatrix.setPerspective(40, ratio, 0.1, 1000 );
 
-  dragr.addRotationObject(eye);
-  dragr.init();
+  // dragr.addRotationObject(eye);
+  // dragr.init();
 
   KEY_HANDLER.on('up', function () {
-    ortho.far += 0.01;
+    camAccel = 0.05;
+  });
+
+  KEY_HANDLER.off('up', function () {
+   camAccel = 0;
   });
 
   KEY_HANDLER.on('down', function () {
-    ortho.near -= 0.01;
+    camAccel = -0.05;
   });
+
+  KEY_HANDLER.off('down', function () {
+    camAccel = 0;
+  });
+
+  function updateVelocity () {
+    camVelocity += camAccel;
+    camVelocity *= camFriction;
+    eye.z += camVelocity;
+  }
 
 
   ANIMATOR.onFrame(function () {
+    updateVelocity();
+
     gl.clear(gl.COLOR_BUFFER_BIT);
-  //transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
+    transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
     viewMatrix.setLookAt(eye.x, eye.y, eye.z,
                           0, 0, 0,
                           0, 1, 0);
@@ -136,11 +145,11 @@ shaders = glslify({
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
     gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
 
-    gl.drawArrays(gl.TRIANGLES, 0, 6);
+    gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
     //gl.drawArrays(gl.POINTS, 0, 4);
   });
 
-   ANIMATOR.start();
+   //ANIMATOR.start();
 
 
 }());
