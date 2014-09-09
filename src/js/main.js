@@ -17,13 +17,16 @@ shaders = glslify({
   var canvas = UTILS.getCanvas(),
   verts,
   dragr = DRAGR(),
+  ratio = 1,
   gl;
 
 
   //must size the canvas before grabbing the context 
   //its crazy but its true! 
   canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight; 
+  canvas.height = window.innerHeight;
+
+  ratio = (canvas.width / canvas.height);
 
 
   gl = UTILS.getContext(canvas);
@@ -105,7 +108,9 @@ shaders = glslify({
   /**
    * setOrtho (LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
    */
-  projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+  //projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+  //
+  projMatrix.setPerspective(40, ratio, 0.1, 1000 );
 
   dragr.addRotationObject(eye);
   dragr.init();
@@ -126,7 +131,7 @@ shaders = glslify({
                           0, 0, 0,
                           0, 1, 0);
    // gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
-    projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+    //projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
     gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
     gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
