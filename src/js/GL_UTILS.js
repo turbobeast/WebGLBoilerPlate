@@ -171,7 +171,7 @@ var GL_UTILS = (function (){
 	 */
 	utils.loadTexture = function (gl, n, texture, u_Sampler, image, texNum) {
 
-		gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);//flip y axis
+		//gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL, 1);//flip y axis
 		gl.activeTexture(textureUnits[texNum]);
 		gl.bindTexture(gl.TEXTURE_2D, texture);
 
