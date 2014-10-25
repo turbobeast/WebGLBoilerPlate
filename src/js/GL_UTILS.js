@@ -219,7 +219,7 @@ var GL_UTILS = (function (){
 
 		var stride = 0;
 
-		for(i = 0; i < attribs.length; i += 1) { stride += attribs[0].dimensions; }
+		for(i = 0; i < attribs.length; i += 1) { stride += attribs[i].dimensions; }
 
 		if(vertData.length % stride !== 0) {
 			return console.error('wrong number of elements in vertex array');
