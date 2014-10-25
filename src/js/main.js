@@ -5,6 +5,7 @@ UTILS = require('./GL_UTILS'),
 Matrix4 = require('./CUON_Matrix4'),
 DRAGR = require('./DRAG_ROTATE'),
 KEY_HANDLER = require('./KEY_HANDLER'),
+SHAPES = require('./shapes/Shapes'),
 shaders = glslify({
   vertex : '../shaders/texture.vertex.glsl',
   fragment : '../shaders/texture.fragment.glsl',
@@ -24,8 +25,8 @@ shaders = glslify({
   gl;
 
 
-  //must size the canvas before grabbing the context 
-  //its crazy but its true! 
+  //must size the canvas before grabbing the context
+  //its crazy but its true!
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
 
@@ -40,12 +41,7 @@ shaders = glslify({
 
 
 
-   var quad  = [-0.5,-0.5, 0.0, 0.0, 1.0,
-               -0.5, 0.5, 0.0, 0.0, 0.0, 
-                0.5, -0.5, 0.0, 1.0, 1.0, 
-                0.5, 0.5, 0.0, 1.0, 0.0 ];
-  
-       
+  var quad  = SHAPES.quadTexCoord;
 
   UTILS.initVertexBufferMultipleAttributes(gl, [{
     name : 'aVertexPosition',
@@ -88,9 +84,10 @@ shaders = glslify({
 
 
   var viewMatrix = new Matrix4();
-  viewMatrix.setLookAt(eye.x, eye.y, eye.z,
-                          0, 0, 0,
-                          0, 1, 0);
+
+  viewMatrix.setLookAt(0, 0, 1,
+                       0, 0, 0,
+                       0, 1, 0);
 
   var uViewMatrix = gl.getUniformLocation(gl.program, 'uViewMatrix');
   gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
@@ -103,11 +100,9 @@ shaders = glslify({
    * setOrtho (LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
    */
   //projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
-  //
-  projMatrix.setPerspective(40, ratio, 0.1, 1000 );
 
-  // dragr.addRotationObject(eye);
-  // dragr.init();
+
+  projMatrix.setPerspective(40, ratio, 0.1, 1000 );
 
   KEY_HANDLER.on('up', function () {
     camAccel = 0.05;
@@ -133,15 +128,14 @@ shaders = glslify({
 
 
   ANIMATOR.onFrame(function () {
+
     updateVelocity();
 
     gl.clear(gl.COLOR_BUFFER_BIT);
     transMatrix = transMatrix.rotate(0.6,0.1,1.1,1.0);
-    viewMatrix.setLookAt(eye.x, eye.y, eye.z,
-                          0, 0, 0,
-                          0, 1, 0);
-   // gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
-    //projMatrix.setOrtho(ortho.left, ortho.right, ortho.bottom, ortho.top, ortho.near, ortho.far);
+    // viewMatrix.setLookAt(0, 0, 1,
+    //                      0, 0, 0,
+    //                      0, 1, 0);
     gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
     gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
     gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
