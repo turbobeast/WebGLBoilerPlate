@@ -14,10 +14,10 @@ var GL_UTILS = (function (){
 
 		container.appendChild(canvas);
 
-		return canvas; 
+		return canvas;
 	};
 
-	
+
 	utils.createProgram = function (gl, vShader, fShader) {
 		var vertexShader,
 		fragmentShader,
@@ -46,7 +46,7 @@ var GL_UTILS = (function (){
 
   		textureUnits = [gl.TEXTURE0, gl.TEXTURE1, gl.TEXTURE2, gl.TEXTURE3, gl.TEXTURE4, gl.TEXTURE5, gl.TEXTURE6, gl.TEXTURE7];
 
-  		return program; 
+  		return program;
 
 
 	};
@@ -70,7 +70,7 @@ var GL_UTILS = (function (){
 			return null;
 		}
 
-		return shader; 
+		return shader;
 	};
 
 	utils.getContext = function (canvas) {
@@ -87,7 +87,7 @@ var GL_UTILS = (function (){
 			}
 		}
 
-		return context; 
+		return context;
 	};
 
 	utils.initVertexBuffer = function (gl, verts, dimensions, pointerName, stride, offset) {
@@ -97,7 +97,7 @@ var GL_UTILS = (function (){
 		//gl.bufferData() //write data to the buffer
 		//gl.vertexAttribPointer //assign buffer to an attribute
 		//gl.enableVertexAttribArray //enable assignment
-		
+
 		var vertices,
 	    buffer,
 	    attribute;
@@ -112,7 +112,7 @@ var GL_UTILS = (function (){
 	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW); //write data to the buffer
 
 	    attribute = gl.getAttribLocation(gl.program, pointerName); //location of attribute (pointer) by name
-	    
+
 
 	    /*
 	    gl.vertexAttribPointer([attribute],
@@ -120,12 +120,12 @@ var GL_UTILS = (function (){
 	    					   [data type],
 	    					   [normalize],
 	    					   [stride], //how many bytes until a new set of vertices starts
-	    					   [offset]); //offset where to count relevant data for this attribute 
+	    					   [offset]); //offset where to count relevant data for this attribute
 	     */
 	    gl.vertexAttribPointer(attribute, dimensions, gl.FLOAT, false, 0, 0); //set the buffer object bound to ARRAY_BUFFER to the attribute
-	    gl.enableVertexAttribArray(attribute); //enable the previous assignment 
+	    gl.enableVertexAttribArray(attribute); //enable the previous assignment
 
-	    
+
 	};
 
 	/**
@@ -134,12 +134,12 @@ var GL_UTILS = (function (){
 	 * @param  {n} n           the number of vertices texture is mapped to
 	 * @param  {String} uniformName the name of the Sampler2D uniform in the frag shader
 	 * @param  {String} srcPath     path to the image asset
-	 * @return {null}     
+	 * @return {null}
 	 */
 	utils.initTexture = function (gl, n, uniformName, srcPath, textureNum, onload) {
 
 		var texture, u_Sampler, image;
-		
+
 		texture = gl.createTexture();
 
 		if(!texture) {
@@ -147,7 +147,7 @@ var GL_UTILS = (function (){
 		}
 
 		u_Sampler = gl.getUniformLocation(gl.program, uniformName);
-		image = new Image(); 
+		image = new Image();
 
 		image.onload = function () {
 			if(typeof onload === 'function') {
@@ -167,7 +167,7 @@ var GL_UTILS = (function (){
 	 * @param  {WegGLTExture} texture  the texture generated from gl.createTexture
 	 * @param  {u_Sampler} u_Sampler the location of sampler2D uniform in fragment shader
 	 * @param  {HTMLImageElement} image  the image element
-	 * @return {null}  
+	 * @return {null}
 	 */
 	utils.loadTexture = function (gl, n, texture, u_Sampler, image, texNum) {
 
@@ -191,15 +191,16 @@ var GL_UTILS = (function (){
 	};
 
 	/**
-	 * initializes a vertex buffer, 
-	 * handles case where buffer data contains 
+	 * initializes a vertex buffer,
+	 * handles case where buffer data contains
 	 * data for more than one attribute
 	 * @param  {WebGLContext} gl the webgl context object
 	 * @param  {Array} attribs an array of simple objects containing name, dimension, stride and offset keys
 	 * @param  {Array} vertData the array of floats for the buffer data
-	 * @return {null}  
+	 * @return {null}
 	 */
 	utils.initVertexBufferMultipleAttributes = function (gl, attribs, vertData) {
+
 
 		var FSIZE,
 		vertices,
@@ -215,12 +216,21 @@ var GL_UTILS = (function (){
 	    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
 
+
+		var stride = 0;
+
+		for(i = 0; i < attribs.length; i += 1) { stride += attribs[0].dimensions; }
+
+		if(vertData.length % stride !== 0) {
+			return console.error('wrong number of elements in vertex array');
+		}
+
 	    //connect this buffer data to shader attribute
 	    for(i = 0; i < attribs.length; ++i) {
 
 	    	attribInfo = attribs[i];
 	    	attribute = gl.getAttribLocation(gl.program, attribInfo.name);
-	    	gl.vertexAttribPointer(attribute, attribInfo.dimensions, gl.FLOAT, false, attribInfo.stride * FSIZE, attribInfo.offset * FSIZE);
+	    	gl.vertexAttribPointer(attribute, attribInfo.dimensions, gl.FLOAT, false, stride * FSIZE, attribInfo.offset * FSIZE);
 	    	gl.enableVertexAttribArray(attribute);
 	    }
 	};
@@ -229,4 +239,4 @@ var GL_UTILS = (function (){
 
 }());
 
-module.exports = GL_UTILS; 
+module.exports = GL_UTILS;

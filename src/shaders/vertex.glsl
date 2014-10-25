@@ -7,8 +7,8 @@ varying vec3 vColor;
 
 
 void main () {
-
-	gl_Position = uProjMatrix * uViewMatrix * uTransMatrix * aVertexPosition;// + uTranslation;
+	
+	gl_Position = uProjMatrix * uViewMatrix * uTransMatrix * aVertexPosition;
 	vColor = aColor;
- 
+
 }
