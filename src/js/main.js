@@ -19,6 +19,9 @@ shaders = glslify({
   verts,
   dragr = DRAGR(),
   ratio = 1,
+  velocity = 0,
+  accel = 0,
+  friction = 0.97,
   gl;
 
 
@@ -99,22 +102,47 @@ shaders = glslify({
   gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
   gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
 
-  console.log(triangles.length / 6);
+  KEY_HANDLER.on('up', function () {
+    accel = 0.05;
+  });
+
+  KEY_HANDLER.off('up', function (){
+    accel = 0;
+  });
+
+  KEY_HANDLER.off('down', function () {
+    accel = 0;
+  })
+
+  KEY_HANDLER.on('down', function () {
+    accel = -0.05;
+  });
+
+  function updateVelocity () {
+    velocity += accel;
+    velocity *= friction;
+  }
+
 
 
   ANIMATOR.onFrame(function () {
+
+    updateVelocity();
     for(var i = 0; i < triangles.length; i += 6) {
 
       var zPos = triangles[i+2];
-      if(zPos > 10) {
-        zPos = -20;
-      }
-      zPos += 0.1;
+
+
+      if(zPos > 10) zPos = -20;// wrap on the near plane
+      if(zPos < -20) zPos = 10;// wrap on the far plane
+
+
+      zPos += velocity;
       triangles[i +2 ] = zPos;
     }
     gl.clear(gl.COLOR_BUFFER_BIT);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(triangles));
-    gl.drawArrays(gl.TRIANGLES, 0, 1440/ 6);
+    gl.drawArrays(gl.TRIANGLES, 0, 1440 / 6);
   });
 
   ANIMATOR.start();
