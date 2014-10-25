@@ -36,7 +36,7 @@ shaders = glslify({
 
 
 
-  var triangles = SHAPES.sixTriangles;
+  var triangles = SHAPES.triangles;
 
   UTILS.initVertexBufferMultipleAttributes(gl, [{
     name : 'aVertexPosition',
@@ -99,10 +99,22 @@ shaders = glslify({
   gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
   gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
 
+  console.log(triangles.length / 6);
+
 
   ANIMATOR.onFrame(function () {
+    for(var i = 0; i < triangles.length; i += 6) {
+
+      var zPos = triangles[i+2];
+      if(zPos > 10) {
+        zPos = -20;
+      }
+      zPos += 0.1;
+      triangles[i +2 ] = zPos;
+    }
     gl.clear(gl.COLOR_BUFFER_BIT);
-    gl.drawArrays(gl.TRIANGLES, 0, 18);
+    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(triangles));
+    gl.drawArrays(gl.TRIANGLES, 0, 1440/ 6);
   });
 
   ANIMATOR.start();
