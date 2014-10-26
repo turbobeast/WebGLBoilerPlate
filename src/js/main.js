@@ -3,6 +3,7 @@ ANIMATOR = require('./ANIMATOR'),
 RESIZOR = require('./RESIZOR'),
 UTILS = require('./GL_UTILS'),
 Matrix4 = require('./CUON_Matrix4'),
+Matrix42 = require('./Matrix4'),
 DRAGR = require('./DRAG_ROTATE'),
 KEY_HANDLER = require('./KEY_HANDLER'),
 SHAPES = require('./shapes/Shapes'),
@@ -54,10 +55,12 @@ shaders = glslify({
 
 
   //gl.clearColor(1.0,1.0,0.16,1);
-  gl.clearColor(20/255,187/255,43/255,1);
+  gl.enable(gl.DEPTH_TEST);
+  gl.clearColor(200/255,197/255,43/255,1);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var theta = Math.PI / 4;
+
   var ortho = {
     left : -1.0,
     right : 1.0,
@@ -112,25 +115,35 @@ shaders = glslify({
   }
 
 
+  var modelZRotation = 0;
+
+
+  var spinMat = Matrix42();
+  var numVerts = 1440/6;
 
   ANIMATOR.onFrame(function () {
-
+    // modelZRotation += 0.1;
+    // modelMatrix.setRotate(modelZRotation, 0,0,1);
+    // mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+    // gl.uniformMatrix4fv(uMVPMatrix, false, mvpMatrix.elements);
     updateVelocity();
+
+
+
     for(var i = 0; i < triangles.length; i += 6) {
 
+
       var zPos = triangles[i+2];
-
-
       if(zPos > 10) zPos = -20;// wrap on the near plane
       if(zPos < -20) zPos = 10;// wrap on the far plane
-
-
       zPos += velocity;
+
+
       triangles[i +2 ] = zPos;
     }
-    gl.clear(gl.COLOR_BUFFER_BIT);
+    gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
     gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(triangles));
-    gl.drawArrays(gl.TRIANGLES, 0, 1440 / 6);
+    gl.drawArrays(gl.TRIANGLES, 0, numVerts);
   });
 
   ANIMATOR.start();
