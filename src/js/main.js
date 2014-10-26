@@ -42,16 +42,20 @@ shaders = glslify({
 
   var cube = SHAPES.cube;
 
-  UTILS.initVertexBufferMultipleAttributes(gl, [{
-    name : 'aVertexPosition',
-    dimensions: 3,
-    offset: 0
-  },{
-    name : 'aColor',
-    dimensions : 3,
-    offset : 3
-  }], cube.vertices );
-
+  // UTILS.initVertexBufferMultipleAttributes(gl, [{
+  //   name : 'aVertexPosition',
+  //   dimensions: 3,
+  //   offset: 0
+  // },{
+  //   name : 'aColor',
+  //   dimensions : 3,
+  //   offset : 3
+  // }], cube.vertices );
+  //
+  //
+  UTILS.initVertexBuffer(gl, cube.vertices, 3, 'aVertexPosition', 3, 0);
+  UTILS.initVertexBuffer(gl, cube.colors, 3, 'aColor', 3, 0);
+  ///gl, verts, dimensions, pointerName, stride, offset
   UTILS.initIndexBuffer(gl, cube.indices);
 
 
