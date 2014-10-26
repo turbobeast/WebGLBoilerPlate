@@ -40,7 +40,7 @@ shaders = glslify({
 
 
 
-  var triangles = SHAPES.triangles;
+  var cube = SHAPES.cube;
 
   UTILS.initVertexBufferMultipleAttributes(gl, [{
     name : 'aVertexPosition',
@@ -50,14 +50,16 @@ shaders = glslify({
     name : 'aColor',
     dimensions : 3,
     offset : 3
-  }], triangles);
+  }], cube.vertices );
+
+  UTILS.initIndexBuffer(gl, cube.indices);
 
 
 
   //gl.clearColor(1.0,1.0,0.16,1);
   gl.enable(gl.DEPTH_TEST);
   gl.enable(gl.POLYGON_OFFSET_FILL);
-  gl.clearColor(200/255,197/255,43/255,1);
+  gl.clearColor(20/255,19/255,43/255,1);
   gl.polygonOffset(1.0,1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
@@ -95,57 +97,20 @@ shaders = glslify({
   var uMVPMatrix = gl.getUniformLocation(gl.program, 'uMVPMatrix');
   gl.uniformMatrix4fv(uMVPMatrix, false, mvpMatrix.elements);
 
-  KEY_HANDLER.on('up', function () {
-    accel = 0.05;
-  });
-
-  KEY_HANDLER.off('up', function (){
-    accel = 0;
-  });
-
-  KEY_HANDLER.off('down', function () {
-    accel = 0;
-  })
-
-  KEY_HANDLER.on('down', function () {
-    accel = -0.05;
-  });
-
-  function updateVelocity () {
-    velocity += accel;
-    velocity *= friction;
-  }
 
 
-  var modelZRotation = 0;
 
+  var numIndices = cube.indices.length;
 
-  var spinMat = Matrix42();
-  var numVerts = 1440/6;
 
   ANIMATOR.onFrame(function () {
-    // modelZRotation += 0.1;
-    // modelMatrix.setRotate(modelZRotation, 0,0,1);
-    // mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
-    // gl.uniformMatrix4fv(uMVPMatrix, false, mvpMatrix.elements);
-    updateVelocity();
 
-
-
-    for(var i = 0; i < triangles.length; i += 6) {
-
-
-      var zPos = triangles[i+2];
-      if(zPos > 10) zPos = -20;// wrap on the near plane
-      if(zPos < -20) zPos = 10;// wrap on the far plane
-      zPos += velocity;
-
-
-      triangles[i +2 ] = zPos;
-    }
+    modelMatrix = modelMatrix.rotate(0.6,0.1,1.1,1.0);
+    mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+    gl.uniformMatrix4fv(uMVPMatrix, false, mvpMatrix.elements);
     gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-    gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(triangles));
-    gl.drawArrays(gl.TRIANGLES, 0, numVerts);
+    //gl.bufferSubData(gl.ARRAY_BUFFER, 0, new Float32Array(triangles));
+    gl.drawElements(gl.TRIANGLES, numIndices, gl.UNSIGNED_BYTE, 0);
   });
 
   ANIMATOR.start();

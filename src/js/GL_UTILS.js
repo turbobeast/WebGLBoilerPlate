@@ -239,6 +239,22 @@ var GL_UTILS = (function (){
 	    }
 	};
 
+
+	/**
+	 * @public
+	 * initialize (create, bind, set data) index buffer
+	 * @param {WebGL Context}  gl - the webgl context
+	 * @param {Array} indices - the array of indices (positions of vertices in vertex buffer for creating faces)
+	 * @param {Boolean} dynamic - whether to use gl.DYNAMIC_DRAW or not
+	 */
+	utils.initIndexBuffer = function (gl,indices, dynamic) {
+		var indexBuffer = gl.createBuffer();
+		var drawMethod = dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
+
+		gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, indexBuffer);
+		gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, new Uint8Array(indices), drawMethod);
+	};
+
 	return utils;
 
 }());
