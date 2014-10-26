@@ -56,7 +56,9 @@ shaders = glslify({
 
   //gl.clearColor(1.0,1.0,0.16,1);
   gl.enable(gl.DEPTH_TEST);
+  gl.enable(gl.POLYGON_OFFSET_FILL);
   gl.clearColor(200/255,197/255,43/255,1);
+  gl.polygonOffset(1.0,1.0);
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var theta = Math.PI / 4;
