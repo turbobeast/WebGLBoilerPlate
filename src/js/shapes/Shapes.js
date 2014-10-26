@@ -46,15 +46,15 @@ var triangles = [];
 for(var i = 0; i < 40; i += 1) {
 
   var zPos = i -40;
-  triangles.push(0.75, 1.0, zPos, 0.4, 0.4, 1.0);
-  triangles.push(0.25, -1.0, zPos, 0.4, 0.4, 1.0);
-  triangles.push(1.25, -1.0, zPos, 0.4, 0.4, 1.0);
+  triangles.push(0.75, 1.0, zPos, 0.8, 0.8, 0.1);
+  triangles.push(0.25, -1.0, zPos, 0.8, 0.8, 0.1);
+  triangles.push(1.25, -1.0, zPos, 0.8, 0.8, 0.1);
 
 
 
-  triangles.push(-0.75, 1.0, zPos, 0.4, 0.4, 1.0);
-  triangles.push(-0.25, -1.0, zPos, 0.4, 0.4, 1.0);
-  triangles.push(-1.25, -1.0, zPos, 1.0, 0.4, 0.4);
+  triangles.push(-0.75, 1.0, zPos, 0.8, 0.8, 0.1);
+  triangles.push(-0.25, -1.0, zPos, 0.8, 0.8, 0.1);
+  triangles.push(-1.25, -1.0, zPos, 0.8, 0.8, 0.1);
 
 
 }

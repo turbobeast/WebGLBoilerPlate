@@ -197,24 +197,28 @@ var GL_UTILS = (function (){
 	 * @param  {WebGLContext} gl the webgl context object
 	 * @param  {Array} attribs an array of simple objects containing name, dimension, stride and offset keys
 	 * @param  {Array} vertData the array of floats for the buffer data
+	 * @param  {Boolean} dynamic - whether or not to use gl.DYNAMIC_DRAW (to update vertex positions)
 	 * @return {null}
 	 */
-	utils.initVertexBufferMultipleAttributes = function (gl, attribs, vertData) {
+	utils.initVertexBufferMultipleAttributes = function (gl, attribs, vertData, dynamic) {
 
 
 		var FSIZE,
+		drawMethod,
 		vertices,
 	    buffer,
 	    attribInfo,
 	    attribute,
 	    i = 0;
 
+		drawMethod = dynamic ? gl.DYNAMIC_DRAW : gl.STATIC_DRAW;
+
 	    vertices = new Float32Array(vertData);
 	    FSIZE = vertices.BYTES_PER_ELEMENT;
 	    buffer = gl.createBuffer();
 
 	    gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	    gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.DYNAMIC_DRAW);
+	    gl.bufferData(gl.ARRAY_BUFFER, vertices, drawMethod);
 
 
 		var stride = 0;
