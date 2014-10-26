@@ -58,15 +58,6 @@ shaders = glslify({
   gl.clear(gl.COLOR_BUFFER_BIT);
 
   var theta = Math.PI / 4;
-  var transMatrix = new Matrix4();
-  var uTransMatrix = gl.getUniformLocation(gl.program, 'uTransMatrix');
-
-  var eye = {
-    x : 0.0,
-    y : 0.0,
-    z : 1.5
-  };
-
   var ortho = {
     left : -1.0,
     right : 1.0,
@@ -83,12 +74,9 @@ shaders = glslify({
                        0, 0, -100,
                        0, 1, 0);
 
-  var uViewMatrix = gl.getUniformLocation(gl.program, 'uViewMatrix');
-  gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
-
   var projMatrix = new Matrix4();
-  var uProjMatrix = gl.getUniformLocation(gl.program, 'uProjMatrix');
-  gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
+  var modelMatrix = new Matrix4();
+
 
   /**
    * setOrtho (LEFT, RIGHT, BOTTOM, TOP, NEAR, FAR);
@@ -97,10 +85,10 @@ shaders = glslify({
   projMatrix.setPerspective(40, ratio, 0.1, 1000 );
 
 
-
-  gl.uniformMatrix4fv(uProjMatrix, false, projMatrix.elements);
-  gl.uniformMatrix4fv(uTransMatrix, false, transMatrix.elements);
-  gl.uniformMatrix4fv(uViewMatrix, false, viewMatrix.elements);
+  var mvpMatrix = new Matrix4();
+  mvpMatrix.set(projMatrix).multiply(viewMatrix).multiply(modelMatrix);
+  var uMVPMatrix = gl.getUniformLocation(gl.program, 'uMVPMatrix');
+  gl.uniformMatrix4fv(uMVPMatrix, false, mvpMatrix.elements);
 
   KEY_HANDLER.on('up', function () {
     accel = 0.05;
