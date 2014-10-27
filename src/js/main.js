@@ -8,7 +8,7 @@ DRAGR = require('./DRAG_ROTATE'),
 KEY_HANDLER = require('./KEY_HANDLER'),
 SHAPES = require('./shapes/Shapes'),
 shaders = glslify({
-  vertex : '../shaders/vertex.glsl',
+  vertex : '../shaders/vertex.shading.glsl',
   fragment : '../shaders/fragment.color.glsl',
   sourceOnly : true
 });
@@ -41,23 +41,17 @@ shaders = glslify({
 
 
   var cube = SHAPES.cube;
-
-  // UTILS.initVertexBufferMultipleAttributes(gl, [{
-  //   name : 'aVertexPosition',
-  //   dimensions: 3,
-  //   offset: 0
-  // },{
-  //   name : 'aColor',
-  //   dimensions : 3,
-  //   offset : 3
-  // }], cube.vertices );
-  //
-  //
   UTILS.initVertexBuffer(gl, cube.vertices, 3, 'aVertexPosition', 3, 0);
   UTILS.initVertexBuffer(gl, cube.colors, 3, 'aColor', 3, 0);
+  UTILS.initVertexBuffer(gl, cube.normals, 3, 'aNormal', 3, 0);
   ///gl, verts, dimensions, pointerName, stride, offset
   UTILS.initIndexBuffer(gl, cube.indices);
 
+
+  var uLightColor = gl.getUniformLocation(gl.program, 'uLightColor');
+  gl.uniform3f(uLightColor, 1.0, 0.8, 0.8);
+  var uLightDirection = gl.getUniformLocation(gl.program, 'uLightDirection');
+  gl.uniform3fv(uLightDirection, [0.5, 3.0, 4.0]); 
 
 
   //gl.clearColor(1.0,1.0,0.16,1);
